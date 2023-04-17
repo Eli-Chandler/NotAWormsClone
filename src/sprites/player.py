@@ -2,8 +2,10 @@ import arcade
 from src.sprites import explosion
 from src.sprites import weapon
 
+
+
 class Player(arcade.Sprite):
-    def __init__(self, center_x, center_y):
+    def __init__(self, center_x, center_y, name, is_controlled=False):
         self.weapon_list = arcade.SpriteList()
         self.current_weapon = None
 
@@ -17,8 +19,9 @@ class Player(arcade.Sprite):
         self.want_to_shoot = False
 
         super().__init__('assets/images/player/player.png', center_x=center_x, center_y=center_y, scale=0.5, hit_box_algorithm='Detailed')
-        self.spawn()
-        self.add_weapon()
+        if is_controlled:
+            self.spawn()
+            self.add_weapon()
 
     def add_weapon(self):
         ak47 = weapon.AK47(self)

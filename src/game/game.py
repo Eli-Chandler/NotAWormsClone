@@ -2,16 +2,23 @@ import arcade
 from src.sprites import player, block, explosion
 from src.game import physics_engine
 from src.utils import utils
+from src.multiplayer import client
+import json
 
 class MyGame(arcade.Window):
-    def __init__(self, settings):
+    def __init__(self, username, settings):
+        self.nickname = username
         self.settings = settings
         self.SCREEN_WIDTH = self.settings.get('SCREEN_WIDTH')
         self.SCREEN_HEIGHT =  self.settings.get('SCREEN_HEIGHT')
         super().__init__(self.SCREEN_WIDTH, self.SCREEN_HEIGHT, 'NotAWormsClone')
 
         self.set_update_rate(1/self.settings.get('FPS', 144))
+        self.client = client.Client(username, self)
         self.setup()
+        self.client.start()
+
+
 
     def setup(self):
         arcade.set_background_color(arcade.color.SKY_BLUE)
@@ -25,7 +32,7 @@ class MyGame(arcade.Window):
         self.bullet_list = arcade.SpriteList()
 
         block.Block(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 2)
-        self.player = player.Player(500, 500) # Create initial objects
+        self.player = player.Player(500, 500, self.nickname, True) # Create initial objects
         self.player_list.append(self.player)
 
 
@@ -40,6 +47,8 @@ class MyGame(arcade.Window):
         self.bullet_list.draw()
 
 
+
+
     def on_update(self, delta_time: float):
         self.physics_engine.update(delta_time)
 
@@ -50,6 +59,8 @@ class MyGame(arcade.Window):
 
         for explosion in self.explosion_list:
             explosion.update(delta_time)
+
+        self.client.send_client_info()
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.F:
