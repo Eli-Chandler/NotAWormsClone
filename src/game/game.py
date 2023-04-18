@@ -2,21 +2,17 @@ import arcade
 from src.sprites import player, block, explosion
 from src.game import physics_engine
 from src.utils import utils
-from src.multiplayer import client
 import json
 
 class MyGame(arcade.Window):
-    def __init__(self, username, settings):
-        self.nickname = username
+    def __init__(self, settings):
         self.settings = settings
+
         self.SCREEN_WIDTH = self.settings.get('SCREEN_WIDTH')
         self.SCREEN_HEIGHT =  self.settings.get('SCREEN_HEIGHT')
-        super().__init__(self.SCREEN_WIDTH, self.SCREEN_HEIGHT, 'NotAWormsClone')
+        self.set_update_rate(1 / self.settings.get('FPS', 144))
 
-        self.set_update_rate(1/self.settings.get('FPS', 144))
-        self.client = client.Client(username, self)
-        self.setup()
-        self.client.start()
+        super().__init__(self.SCREEN_WIDTH, self.SCREEN_HEIGHT, 'NotAWormsClone')
 
 
 
@@ -46,10 +42,8 @@ class MyGame(arcade.Window):
         self.player.weapon_list.draw()
         self.bullet_list.draw()
 
-
-
-
     def on_update(self, delta_time: float):
+        self.time += delta_time
         self.physics_engine.update(delta_time)
 
         self.player.update(delta_time)
@@ -59,30 +53,3 @@ class MyGame(arcade.Window):
 
         for explosion in self.explosion_list:
             explosion.update(delta_time)
-
-        self.client.send_client_info()
-
-    def on_key_press(self, symbol: int, modifiers: int):
-        if symbol == arcade.key.F:
-            self.set_fullscreen(not self.fullscreen)
-
-        self.player.on_key_press(symbol, modifiers)
-
-    def on_key_release(self, symbol: int, modifiers: int):
-        self.player.on_key_release(symbol, modifiers)
-
-    def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
-        self.mouse_x = x
-        self.mouse_y = y
-
-    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
-        x, y = utils.convert_viewport_position_to_global_position(x, y)
-        self.player.on_mouse_press(button, modifiers)
-
-    def on_mouse_release(self, x: int, y: int, button: int, modifiers: int):
-        self.player.on_mouse_release(button, modifiers)
-
-    def test_subdivide(self, x, y):
-        hits = arcade.get_sprites_at_point((x, y), self.block_list)
-        for hit in hits:
-            hit.subdivide()

@@ -1,12 +1,17 @@
 import arcade
-
+from src.multiplayer.message import CreateExplosion
 
 sound = arcade.load_sound('assets/sounds/explosion/explosion.wav')
 
+
+
+
+
 class Explosion(arcade.Sprite):
-    def __init__(self, center_x, center_y, diameter):
+    def __init__(self, source, center_x, center_y, diameter):
         scale = diameter/32
         self.window = arcade.get_window()
+        self.source=source
 
         self.diameter = diameter
 
@@ -15,6 +20,7 @@ class Explosion(arcade.Sprite):
         super().__init__('assets/images/explosion/explosion.png', center_x=center_x, center_y=center_y, scale=scale)
 
         arcade.play_sound(sound)
+        #self.window.client.send_explosion(self)
 
     def check_sprite_fully_outside(self, sprite):
         # Calculate the closest point on the sprite's bounding box to the circle's center
@@ -70,3 +76,10 @@ class Explosion(arcade.Sprite):
             self.alpha = new_alpha
         else:
             self.kill()
+
+class ClientExplosion(Explosion):
+    def __init__(self, source, center_x, center_y, diameter):
+        self.window = arcade.get_window()
+        self.source=source
+        super().__init__(source, center_x, center_y, diameter)
+        self.window.send_message(CreateExplosion(self))

@@ -1,6 +1,7 @@
 import arcade
 from src.sprites import explosion
 from src.sprites import weapon
+from src.multiplayer.message import GivePosition
 
 
 
@@ -17,6 +18,7 @@ class Player(arcade.Sprite):
         self.ground_distance_threshold_for_jump = self.window.settings.get('PLAYER_JUMP_THRESHOLD', 5)
         self.want_to_jump = False
         self.want_to_shoot = False
+        self.nickname = name
 
         super().__init__('assets/images/player/player.png', center_x=center_x, center_y=center_y, scale=0.5, hit_box_algorithm='Detailed')
         if is_controlled:
@@ -55,6 +57,8 @@ class Player(arcade.Sprite):
         if arcade.key.D in self.pressed_keys:
             self.change_x = self.speed
 
+        self.window.send_message(GivePosition(self.center_x, self.center_y, self.angle))
+
     def can_jump(self):
         return self.window.physics_engine.can_jump(self.ground_distance_threshold_for_jump)
 
@@ -73,7 +77,8 @@ class Player(arcade.Sprite):
             self.pressed_keys.remove(symbol)
 
     def spawn(self):
-        e = explosion.Explosion(
+        e = explosion.ClientExplosion(
+            self.nickname,
             self.center_x,
             self.center_y,
             max(self.width, self.height)*3
