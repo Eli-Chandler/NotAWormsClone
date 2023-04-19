@@ -30,8 +30,9 @@ class Bullet(arcade.Sprite):
             self.explode()
 
     def explode(self):
-        e = explosion.Explosion(self.center_x, self.center_y, self.explosion_diameter)
-        self.window.explosion_list.append(e)
+        if self.window.is_client:
+            e = explosion.ClientExplosion(self.weapon.owner.nickname, self.center_x, self.center_y, self.explosion_diameter)
+            self.window.explosion_list.append(e)
         self.kill()
 
 
