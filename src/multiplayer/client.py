@@ -20,8 +20,8 @@ class Client(game.MyGame):
         self.is_client = True
 
         super().__init__(settings)
-        self.server_host = server_port
-        self.server_port = server_host
+        self.server_host = server_host
+        self.server_port = server_port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
@@ -34,7 +34,7 @@ class Client(game.MyGame):
         self.setup(start_x, start_y)
 
     def connect_to_server(self):
-        self.client_socket.connect(('127.0.0.1', 5000))
+        self.client_socket.connect((self.server_host, self.server_port))
         print('Connected')
         self.send_message(UpdateNickname(self.nickname))
         self.send_message(GetPosition(nickname=self.nickname))
@@ -99,8 +99,8 @@ class Client(game.MyGame):
         arcade.start_render()
         self.block_list.draw()
         self.bullet_list.draw()
-        self.player_list.draw()
-        self.player.weapon_list.draw()
+        for player in self.player_list:
+            player.draw()
         self.explosion_list.draw()
 
 
@@ -116,7 +116,8 @@ class Client(game.MyGame):
 
             handlers= {
                 'give_positions': self.handle_give_positions,
-                'create_explosion': self.handle_create_explosion
+                'create_explosion': self.handle_create_explosion,
+                'create_bullet': self.handle_create_bullet
             }
 
             return handlers[message.action](message)
@@ -124,18 +125,32 @@ class Client(game.MyGame):
     def handle_create_explosion(self, message):
         source = message.body['source']
 
+        if source != self.nickname:
+            center_x = message.body['center_x']
+            center_y = message.body['center_y']
+            diameter = message.body['diameter']
+            e = explosion.Explosion(source, center_x, center_y, diameter)
+            self.explosion_list.append(e)
+
+    def handle_create_bullet(self, message):
         center_x = message.body['center_x']
         center_y = message.body['center_y']
-        diameter = message.body['diameter']
-        e = explosion.Explosion(source, center_x, center_y, diameter)
-        self.explosion_list.append(e)
+        angle = message.body['angle']
+        scale = message.body['scale']
+        change_x = message.body['change_x']
+        change_y = message.body['change_y']
+        weapon_name = message.body['weapon_name']
+
+        b = bullet.ServerBullet(center_x, center_y, change_x, change_y, weapon_name, angle, scale)
+        self.bullet_list.append(b)
+
 
 
     def handle_give_positions(self, message):
         positions = message.body['positions']
 
         for nickname, position in positions.items():
-            print(nickname, position)
+            #print(nickname, position)
             if nickname == self.player.nickname:
                 continue
 
@@ -143,9 +158,20 @@ class Client(game.MyGame):
                 p = player.Player(position['center_x'], position['center_y'], nickname)
                 self.other_players[nickname] = p
                 self.player_list.append(p)
-            else:
-                self.other_players[nickname].center_x = position['center_x']
-                self.other_players[nickname].center_y = position['center_y']
+            self.other_players[nickname].center_x = position['center_x']
+            self.other_players[nickname].center_y = position['center_y']
+
+            if self.other_players[nickname].current_weapon is None:
+                self.other_players[nickname].current_weapon = weapon.AK47(self.other_players[nickname])
+            if self.other_players[nickname].current_weapon.name != position['weapon_name']:
+                if position['weapon_name'] == 'ak47':
+                    self.other_players[nickname].current_weapon = weapon.AK47(self.other_players[nickname])
+
+            self.other_players[nickname].current_weapon.angle = position['weapon_angle']
+            self.other_players[nickname].current_weapon.scale = position['weapon_scale']
+            self.other_players[nickname].current_weapon.center_x = self.other_players[nickname].center_x
+            self.other_players[nickname].current_weapon.center_y = self.other_players[nickname].center_y
+            self.other_players[nickname].health = position['health']
 
 
 

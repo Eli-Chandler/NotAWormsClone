@@ -56,15 +56,18 @@ class GetPosition(Message):
         super().__init__('get_position', nickname=nickname)
 
 class GivePosition(Message):
-    def __init__(self, center_x, center_y, angle):
-        super().__init__('give_position', center_x=center_x, center_y=center_y, angle=angle)
+    def __init__(self, center_x, center_y, weapon_angle, weapon_name, weapon_scale, health):
+        super().__init__('give_position', center_x=center_x, center_y=center_y, weapon_angle=weapon_angle, weapon_name=weapon_name, weapon_scale=weapon_scale, health=health)
 
 
 class GivePositions(Message):
     def __init__(self, player_list):
         positions = {}
         for player in player_list:
-            positions[player.nickname] = {'center_x': player.center_x, 'center_y': player.center_y, 'angle': player.angle}
+            weapon_angle = player.current_weapon.angle if player.current_weapon else 0
+            weapon_name = player.current_weapon.name if player.current_weapon else 'hands'
+            weapon_scale = player.current_weapon.scale if player.current_weapon else 1
+            positions[player.nickname] = {'center_x': player.center_x, 'center_y': player.center_y, 'weapon_angle': weapon_angle, 'weapon_name': weapon_name, 'weapon_scale': weapon_scale, 'health': player.health}
 
         super().__init__('give_positions', positions=positions)
 
@@ -81,6 +84,9 @@ class CreateExplosion(Message):
     def __init__(self, explosion):
         super().__init__('create_explosion', source=explosion.source, center_x=explosion.center_x, center_y=explosion.center_y, diameter=explosion.diameter)
 
+class CreateBullet(Message):
+    def __init__(self, bullet):
+        super().__init__('create_bullet', center_x=bullet.center_x, center_y=bullet.center_y, change_x=bullet.change_x, change_y=bullet.change_y, weapon_name=bullet.weapon_name, angle=bullet.angle, scale=bullet.scale)
 
 
 class Ping(Message):

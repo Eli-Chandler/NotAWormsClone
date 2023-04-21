@@ -58,8 +58,10 @@ class Server(game.MyGame):
     def on_draw(self):
         arcade.start_render()
         self.block_list.draw()
-        self.player_list.draw()
+        #self.player_list.draw()
         self.bullet_list.draw()
+        for player in self.player_list:
+            player.draw()
         self.explosion_list.draw()
 
     def send_server_info(self):
@@ -78,7 +80,8 @@ class Server(game.MyGame):
         handlers= {
             'get_position': self.handle_get_position,
             'give_position': self.handle_give_position,
-            'create_explosion': self.handle_create_explosion
+            'create_explosion': self.handle_create_explosion,
+            'create_bullet': self.handle_create_bullet
         }
 
         return handlers[message.action](client, message)
@@ -91,19 +94,43 @@ class Server(game.MyGame):
         e = explosion.Explosion(source, center_x, center_y, diameter)
         self.explosion_list.append(e)
 
-        self.broadcast_message(CreateExplosion(e))
+        self.broadcast_message(message)
+
+    def handle_create_bullet(self, client, message):
+        center_x = message.body['center_x']
+        center_y = message.body['center_y']
+        angle = message.body['angle']
+        scale = message.body['scale']
+        change_x = message.body['change_x']
+        change_y = message.body['change_y']
+        weapon_name = message.body['weapon_name']
+
+        b = bullet.ServerBullet(center_x, center_y, change_x, change_y, weapon_name, angle, scale)
+        self.bullet_list.append(b)
+
+        self.broadcast_message(message)
 
     def handle_give_position(self, client, message):
         nickname = message.author
         p = self.players[nickname]
         p.center_x = message.body['center_x']
         p.center_y = message.body['center_y']
-        p.angle = message.body['angle']
+        if p.current_weapon is None:
+            p.current_weapon = weapon.AK47(p)
+        if p.current_weapon.name != message.body['weapon_name']:
+            if message.body['weapon_name'] == 'ak47':
+                p.current_weapon = weapon.AK47(p)
+        p.current_weapon.angle = message.body['weapon_angle']
+        p.current_weapon.scale = message.body['weapon_scale']
+
+        p.current_weapon.center_x = p.center_x
+        p.current_weapon.center_y = p.center_y
+        p.health = message.body['health']
 
     def handle_get_position(self, client, message):
         nickname = message.body['nickname']
         p = self.players[nickname]
-        self.send_message(client, GivePosition(p.center_x, p.center_y, p.angle))
+        self.send_message(client, GivePosition(p.center_x, p.center_y, 'none', 'none', 'none', 100))
 
 
     def send_message(self, client, message):

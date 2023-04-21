@@ -68,3 +68,4 @@ class AK47(Weapon):
     def __init__(self, owner):
         name = 'ak47'
         super().__init__(owner, name, 90, 5, True, bullet.AK47Bullet, scale=0.5)
+

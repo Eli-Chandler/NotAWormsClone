@@ -17,6 +17,8 @@ class Explosion(arcade.Sprite):
 
         self.is_fully_exploded = False
 
+        self.players_already_hit_list = []
+
         super().__init__('assets/images/explosion/explosion.png', center_x=center_x, center_y=center_y, scale=scale)
 
         arcade.play_sound(sound)
@@ -55,6 +57,12 @@ class Explosion(arcade.Sprite):
 
     def explode(self):
         hits = arcade.check_for_collision_with_list(self, self.window.block_list)
+        player_hits = arcade.check_for_collision_with_list(self, self.window.player_list)
+        for player in player_hits:
+            if player not in self.players_already_hit_list:
+                self.players_already_hit_list.append(player)
+                if player.nickname != self.source:
+                    player.health -= self.diameter
 
         num_subdivided = 0
 
