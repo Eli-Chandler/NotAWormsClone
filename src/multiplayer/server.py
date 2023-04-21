@@ -12,7 +12,7 @@ import struct
 import socket
 
 class Server(game.MyGame):
-    def __init__(self, settings, host='127.0.0.1', port=5000):
+    def __init__(self, settings, host='0.0.0.0', port=5000):
         self.nickname = 'server'
         self.is_client = False
 
