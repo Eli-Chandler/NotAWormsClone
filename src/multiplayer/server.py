@@ -123,6 +123,8 @@ class Server(game.MyGame):
         if p.current_weapon.name != message.body['weapon_name']:
             if message.body['weapon_name'] == 'ak47':
                 p.current_weapon = weapon.AK47(p)
+            if message.body['weapon_name'] == 'p90':
+                p.current_weapon = weapon.P90(p)
         p.current_weapon.angle = message.body['weapon_angle']
         p.current_weapon.scale = message.body['weapon_scale']
 
@@ -137,7 +139,10 @@ class Server(game.MyGame):
         self.send_message(client, GivePreviousExplosions(self.previous_explosions))
 
     def send_message(self, client, message):
-        client.send(message.to_message())
+        try:
+            client.send(message.to_message())
+        except BlockingIOError:
+            pass
 
     def broadcast_message(self, message):
         for client in self.clients.values():
@@ -151,11 +156,11 @@ class Server(game.MyGame):
 
         length = struct.unpack('!I', length_bytes)[0]
         message_bytes = b''
-        self.client_socket.setblocking(True)
+        client.setblocking(True)
         while len(message_bytes) < length:
             chunk = client.recv(length - len(message_bytes))
             message_bytes += chunk
-        self.client_socket.setblocking(False)
+        client.setblocking(False)
         return Message.from_message(message_bytes)
 
     def recieve_and_handle_new_clients(self):
