@@ -15,7 +15,7 @@ import socket
 
 
 class Client(game.MyGame):
-    def __init__(self, username, settings, server_host='127.0.0.1', server_port=5000):
+    def __init__(self, username, settings, server_host='127.0.0.1', server_port=25561):
         self.nickname = username
         self.is_client = True
 
@@ -77,9 +77,11 @@ class Client(game.MyGame):
 
         length = struct.unpack('!I', length_bytes)[0]
         message_bytes = b''
+        self.client_socket.setblocking(True)
         while len(message_bytes) < length:
             chunk = self.client_socket.recv(length - len(message_bytes))
             message_bytes += chunk
+        self.client_socket.setblocking(False)
         return Message.from_message(message_bytes)
 
     def on_update(self, delta_time):
