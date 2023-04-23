@@ -6,6 +6,7 @@ from src.multiplayer.message import CreateBullet
 
 class ServerBullet(arcade.Sprite):
     def __init__(self, center_x, center_y, change_x, change_y, weapon_name, angle, scale):
+        self.is_server_bullet = True
         self.window = arcade.get_window()
         texture = f'assets/images/weapons/{weapon_name}/{weapon_name}_bullet.png'
         super().__init__(filename=texture,
@@ -18,6 +19,7 @@ class ServerBullet(arcade.Sprite):
 
         self.change_x = change_x
         self.change_y = change_y
+        self.already_hit = []
 
     def update(self, delta_time):
         self.center_x += self.change_x * delta_time
@@ -37,6 +39,7 @@ class Bullet(arcade.Sprite):
         self.weapon_name = weapon.name
         self.speed = speed
         self.explosion_diameter = explosion_diameter
+        self.is_server_bullet = False
 
         texture = f'assets/images/weapons/{self.weapon.name}/{self.weapon.name}_bullet.png'
         super().__init__(filename=texture,
@@ -44,6 +47,7 @@ class Bullet(arcade.Sprite):
                          center_y=self.weapon.center_y,
                          angle=self.weapon.angle,
                          scale=scale)
+        self.set_hit_box([(-1, -1), (-1, 1), (1, 1), (1, -1)])
 
         self.window.bullet_list.append(self)
 
@@ -69,3 +73,7 @@ class Bullet(arcade.Sprite):
 class AK47Bullet(Bullet):
     def __init__(self, weapon):
         super().__init__(weapon, 200, 25)
+
+class P90Bullet(Bullet):
+    def __init__(self, weapon):
+        super().__init__(weapon, 150, 5)

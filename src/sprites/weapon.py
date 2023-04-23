@@ -67,5 +67,9 @@ class Weapon(arcade.Sprite):
 class AK47(Weapon):
     def __init__(self, owner):
         name = 'ak47'
-        super().__init__(owner, name, 90, 5, True, bullet.AK47Bullet, scale=0.5)
+        super().__init__(owner, name, 90, 4, True, bullet.AK47Bullet, scale=0.5)
 
+class P90(Weapon):
+    def __init__(self, owner):
+        name = 'p90'
+        super().__init__(owner, name, 25, 5.5, True, bullet.P90Bullet, scale=0.5)
