@@ -10,6 +10,8 @@ class PhysicsEngine:
 
         self.on_ground = False
         self.hit_roof = False
+        self.hit_roof_seconds = 0
+        self.hit_roof_seconds_max = 0.1
 
     def check_collision_x(self, delta_time):
         self.player.center_x += self.player.change_x * delta_time
@@ -92,7 +94,10 @@ class PhysicsEngine:
         self.player.center_y += amount_to_move_y * delta_time
 
         if self.hit_roof and self.player.change_y > 0:
-            self.player.change_y = 0
+            self.hit_roof_seconds += delta_time
+            if self.hit_roof_seconds > self.hit_roof_seconds_max:
+                self.player.change_y = 0
+                self.hit_roof_seconds = 0
 
         if self.on_ground and self.player.change_y <= 0:
             self.player.change_x = 0

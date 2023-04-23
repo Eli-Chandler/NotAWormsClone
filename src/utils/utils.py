@@ -10,8 +10,7 @@ def convert_viewport_position_to_global_position(x, y):
     window = arcade.get_window()
     left, right, bottom, top = window.get_viewport()
 
-    screen_width = window.SCREEN_WIDTH
-    screen_height = window.SCREEN_HEIGHT
+    screen_width, screen_height = window.get_size()
 
     x_ratio = screen_width / (right - left)
     y_ratio = screen_height / (top - bottom)
