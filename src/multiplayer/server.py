@@ -37,6 +37,8 @@ class Server(game.MyGame):
     def setup(self):
         arcade.set_background_color(arcade.color.SKY_BLUE)
 
+        self.set_viewport(0, self.SCREEN_WIDTH, 0, self.SCREEN_HEIGHT)
+
         self.player_list = arcade.SpriteList()
         self.block_list = arcade.SpriteList(use_spatial_hash=True)
         self.bullet_list = arcade.SpriteList()
@@ -46,8 +48,7 @@ class Server(game.MyGame):
         block.Block(self.SCREEN_WIDTH / 2, self.SCREEN_HEIGHT / 2)
 
     def on_update(self, delta_time):
-        for i in range(2):
-            self.receive_data_and_handle_messages()
+        self.receive_data_and_handle_messages()
 
         for b in self.bullet_list:
             b.update(delta_time)
@@ -71,12 +72,16 @@ class Server(game.MyGame):
 
     def receive_data_and_handle_messages(self):
         self.recieve_and_handle_new_clients()
-
-        for nickname, client in self.clients.items():
-            message = self.recieve_message(client)
-            if message is None:
-                continue
-            self.handle_message(client, message)
+        while True:
+            has_recieved_message = False
+            for nickname, client in self.clients.items():
+                message = self.recieve_message(client)
+                if message is None:
+                    continue
+                has_recieved_message = True
+                self.handle_message(client, message)
+            if not has_recieved_message:
+                break
 
     def handle_message(self, client, message):
         handlers= {
@@ -121,6 +126,7 @@ class Server(game.MyGame):
         if p.current_weapon is None:
             p.current_weapon = weapon.AK47(p)
         if p.current_weapon.name != message.body['weapon_name']:
+            p.current_weapon.kill()
             if message.body['weapon_name'] == 'ak47':
                 p.current_weapon = weapon.AK47(p)
             if message.body['weapon_name'] == 'p90':

@@ -85,8 +85,7 @@ class Client(game.MyGame):
         return Message.from_message(message_bytes)
 
     def on_update(self, delta_time):
-        for i in range(2):
-            self.recieve_and_handle_messages()
+        self.recieve_and_handle_messages()
 
 
         self.player.update(delta_time)
@@ -112,8 +111,10 @@ class Client(game.MyGame):
 
 
     def recieve_and_handle_messages(self):
-        message = self.recieve_message()
-        if message:
+        while True:
+            message = self.recieve_message()
+            if not message:
+                break
             if message.author == self.nickname:
                 return
 
@@ -124,7 +125,7 @@ class Client(game.MyGame):
                 'give_previous_explosions': self.handle_give_previous_explosions,
             }
 
-            return handlers[message.action](message)
+            handlers[message.action](message)
 
     def handle_give_previous_explosions(self, message):
         explosions = message.body['explosions']
@@ -174,8 +175,11 @@ class Client(game.MyGame):
             if self.other_players[nickname].current_weapon is None:
                 self.other_players[nickname].current_weapon = weapon.AK47(self.other_players[nickname])
             if self.other_players[nickname].current_weapon.name != position['weapon_name']:
+                self.other_players[nickname].current_weapon.kill()
                 if position['weapon_name'] == 'ak47':
                     self.other_players[nickname].current_weapon = weapon.AK47(self.other_players[nickname])
+                elif position['weapon_name'] == 'p90':
+                    self.other_players[nickname].current_weapon = weapon.P90(self.other_players[nickname])
 
             self.other_players[nickname].current_weapon.angle = position['weapon_angle']
             self.other_players[nickname].current_weapon.scale = position['weapon_scale']

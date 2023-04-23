@@ -70,7 +70,7 @@ class Player(arcade.Sprite):
 
     def draw_nametag(self):
         if not self.is_controlled:
-            arcade.draw_text(self.nickname, self.center_x, self.center_y + 20, arcade.color.WHITE, 10)
+            arcade.draw_text(self.nickname, self.left, self.center_y + 20, arcade.color.WHITE, 10, width=int(self.width), align='center')
 
     def draw_health_bar(self):
         # Draw the health bar background
@@ -86,7 +86,11 @@ class Player(arcade.Sprite):
 
 
     def update_viewport(self):
-        self.window.set_viewport(self.center_x - 160, self.center_x + 160, self.center_y - 90, self.center_y + 90)
+        if arcade.key.TAB in self.pressed_keys:
+            width, height = self.window.settings.get('SCREEN_WIDTH'), self.window.settings.get('SCREEN_HEIGHT')
+            self.window.set_viewport(0, width, 0, height)
+        else:
+            self.window.set_viewport(self.center_x - 160, self.center_x + 160, self.center_y - 90, self.center_y + 90)
 
     def update_actions(self):
         if arcade.MOUSE_BUTTON_LEFT in self.pressed_keys:

@@ -9,7 +9,7 @@ class MyGame(arcade.Window):
         self.settings = settings
 
         self.SCREEN_WIDTH = self.settings.get('SCREEN_WIDTH')
-        self.SCREEN_HEIGHT =  self.settings.get('SCREEN_HEIGHT')
+        self.SCREEN_HEIGHT = self.settings.get('SCREEN_HEIGHT')
         self.set_update_rate(1 / self.settings.get('FPS', 144))
 
         super().__init__(self.SCREEN_WIDTH, self.SCREEN_HEIGHT, 'NotAWormsClone')
