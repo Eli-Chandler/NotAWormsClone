@@ -29,12 +29,15 @@ class Player(arcade.Sprite):
         self.is_controlled = is_controlled
         if is_controlled:
             self.spawn()
-            self.add_weapon()
+            ak47 = weapon.AK47(self)
+            self.add_weapon(ak47)
+            p90 = weapon.P90(self)
+            self.add_weapon(p90)
 
-    def add_weapon(self):
-        ak47 = weapon.AK47(self)
-        self.weapon_list.append(ak47)
-        self.current_weapon = ak47
+    def add_weapon(self, weapon):
+
+        self.weapon_list.append(weapon)
+        self.current_weapon = weapon
 
     def update(self, delta_time):
         self.update_movement(delta_time)
@@ -51,6 +54,11 @@ class Player(arcade.Sprite):
                 self.respawn()
             if self.center_y < -1000:
                 self.respawn()
+            for bullet in arcade.check_for_collision_with_list(self, self.window.bullet_list):
+                if bullet.is_server_bullet and self not in bullet.already_hit:
+                    bullet.already_hit.append(self)
+                    self.health -= 5
+
 
     def draw(self):
         super().draw()
@@ -58,8 +66,11 @@ class Player(arcade.Sprite):
             #print('Drawing weapon')
             self.current_weapon.draw()
         self.draw_health_bar()
+        self.draw_nametag()
 
-
+    def draw_nametag(self):
+        if not self.is_controlled:
+            arcade.draw_text(self.nickname, self.center_x, self.center_y + 20, arcade.color.WHITE, 10)
 
     def draw_health_bar(self):
         # Draw the health bar background
@@ -106,6 +117,19 @@ class Player(arcade.Sprite):
 
     def on_key_press(self, symbol, modifiers):
         self.pressed_keys.add(symbol)
+
+        print(symbol)
+
+        if 0 <= symbol - 48 <= 9:
+            self.switch_to_weapon(symbol - 49)
+
+    def switch_to_weapon(self, index):
+        if index >= len(self.weapon_list):
+            return
+        self.current_weapon = self.weapon_list[index]
+        self.current_weapon.time_since_last_shot = 0
+        self.current_weapon.recoil = 0
+
 
     def on_mouse_press(self, symbol, modifiers):
         self.pressed_keys.add(symbol)
