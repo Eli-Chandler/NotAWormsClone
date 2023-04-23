@@ -59,6 +59,9 @@ class GivePosition(Message):
     def __init__(self, center_x, center_y, weapon_angle, weapon_name, weapon_scale, health):
         super().__init__('give_position', center_x=center_x, center_y=center_y, weapon_angle=weapon_angle, weapon_name=weapon_name, weapon_scale=weapon_scale, health=health)
 
+class GivePreviousExplosions(Message):
+    def __init__(self, explosions):
+        super().__init__('give_previous_explosions', explosions=explosions)
 
 class GivePositions(Message):
     def __init__(self, player_list):

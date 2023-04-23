@@ -12,7 +12,8 @@ def main():
     if not nickname:
         window = Server(settings)
     else:
-        window = Client(nickname, settings)
+        hostname = input('Enter hostname or leave blank to connect to localhost?') or 'localhost'
+        window = Client(nickname, settings, hostname)
 
     arcade.run()
 

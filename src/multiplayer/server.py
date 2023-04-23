@@ -6,7 +6,7 @@ from src.game import game
 from src.sprites import block, bullet, explosion, player, weapon
 from queue import Queue
 from threading import Thread
-from src.multiplayer.message import Message, GivePosition, GivePositions, CreateExplosion
+from src.multiplayer.message import Message, GivePosition, GivePositions, CreateExplosion, GivePreviousExplosions
 import struct
 
 import socket
@@ -24,6 +24,8 @@ class Server(game.MyGame):
         self.clients = {}
         self.players = {}
         self.setup()
+
+        self.previous_explosions = []
 
     def start(self):
         self.server_socket.bind((self.host, self.port))
@@ -91,6 +93,7 @@ class Server(game.MyGame):
         center_x = message.body['center_x']
         center_y = message.body['center_y']
         diameter = message.body['diameter']
+        self.previous_explosions.append(message.body)
         e = explosion.Explosion(source, center_x, center_y, diameter)
         self.explosion_list.append(e)
 
@@ -131,7 +134,7 @@ class Server(game.MyGame):
         nickname = message.body['nickname']
         p = self.players[nickname]
         self.send_message(client, GivePosition(p.center_x, p.center_y, 'none', 'none', 'none', 100))
-
+        self.send_message(client, GivePreviousExplosions(self.previous_explosions))
 
     def send_message(self, client, message):
         client.send(message.to_message())

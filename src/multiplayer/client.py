@@ -42,6 +42,7 @@ class Client(game.MyGame):
             message = self.recieve_message()
             if message and message.action == 'give_position':
                 break
+        print('Recieved position from server')
         start_x = message.body['center_x']
         start_y = message.body['center_y']
         self.client_socket.setblocking(False)
@@ -117,10 +118,17 @@ class Client(game.MyGame):
             handlers= {
                 'give_positions': self.handle_give_positions,
                 'create_explosion': self.handle_create_explosion,
-                'create_bullet': self.handle_create_bullet
+                'create_bullet': self.handle_create_bullet,
+                'give_previous_explosions': self.handle_give_previous_explosions,
             }
 
             return handlers[message.action](message)
+
+    def handle_give_previous_explosions(self, message):
+        explosions = message.body['explosions']
+        for exp in explosions:
+            e = explosion.Explosion(exp['source'], exp['center_x'], exp['center_y'], exp['diameter'])
+            self.explosion_list.append(e)
 
     def handle_create_explosion(self, message):
         source = message.body['source']
