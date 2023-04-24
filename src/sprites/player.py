@@ -33,6 +33,8 @@ class Player(arcade.Sprite):
             self.add_weapon(ak47)
             p90 = weapon.P90(self)
             self.add_weapon(p90)
+            rpg = weapon.RPG(self)
+            self.add_weapon(rpg)
 
     def add_weapon(self, weapon):
 
@@ -57,7 +59,7 @@ class Player(arcade.Sprite):
             for bullet in arcade.check_for_collision_with_list(self, self.window.bullet_list):
                 if bullet.is_server_bullet and self not in bullet.already_hit:
                     bullet.already_hit.append(self)
-                    self.health -= 5
+                    self.health -= bullet.damage
 
 
     def draw(self):

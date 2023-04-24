@@ -89,7 +89,7 @@ class CreateExplosion(Message):
 
 class CreateBullet(Message):
     def __init__(self, bullet):
-        super().__init__('create_bullet', center_x=bullet.center_x, center_y=bullet.center_y, change_x=bullet.change_x, change_y=bullet.change_y, weapon_name=bullet.weapon_name, angle=bullet.angle, scale=bullet.scale)
+        super().__init__('create_bullet', center_x=bullet.center_x, center_y=bullet.center_y, change_x=bullet.change_x, change_y=bullet.change_y, weapon_name=bullet.weapon_name, angle=bullet.angle, scale=bullet.scale, damage=bullet.damage)
 
 
 class Ping(Message):

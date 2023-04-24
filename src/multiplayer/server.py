@@ -112,8 +112,9 @@ class Server(game.MyGame):
         change_x = message.body['change_x']
         change_y = message.body['change_y']
         weapon_name = message.body['weapon_name']
+        damage = message.body['damage']
 
-        b = bullet.ServerBullet(center_x, center_y, change_x, change_y, weapon_name, angle, scale)
+        b = bullet.ServerBullet(center_x, center_y, change_x, change_y, weapon_name, angle, scale, damage)
         self.bullet_list.append(b)
 
         self.broadcast_message(message)
@@ -131,6 +132,8 @@ class Server(game.MyGame):
                 p.current_weapon = weapon.AK47(p)
             if message.body['weapon_name'] == 'p90':
                 p.current_weapon = weapon.P90(p)
+            elif message.body['weapon_name'] == 'rpg':
+                p.current_weapon = weapon.RPG(p)
         p.current_weapon.angle = message.body['weapon_angle']
         p.current_weapon.scale = message.body['weapon_scale']
 
@@ -149,6 +152,8 @@ class Server(game.MyGame):
             client.send(message.to_message())
         except BlockingIOError:
             pass
+        except ConnectionResetError:
+            pass
 
     def broadcast_message(self, message):
         for client in self.clients.values():
@@ -158,6 +163,8 @@ class Server(game.MyGame):
         try:
             length_bytes = client.recv(4)
         except BlockingIOError:
+            return None
+        except ConnectionResetError:
             return None
 
         length = struct.unpack('!I', length_bytes)[0]

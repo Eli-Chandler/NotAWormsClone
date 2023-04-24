@@ -73,3 +73,8 @@ class P90(Weapon):
     def __init__(self, owner):
         name = 'p90'
         super().__init__(owner, name, 25, 5.5, True, bullet.P90Bullet, scale=0.5)
+
+class RPG(Weapon):
+    def __init__(self, owner):
+        name = 'rpg'
+        super().__init__(owner, name, 270, 0.5, False, bullet.RPGBullet, scale=0.05)

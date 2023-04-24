@@ -5,9 +5,10 @@ from src.sprites import explosion
 from src.multiplayer.message import CreateBullet
 
 class ServerBullet(arcade.Sprite):
-    def __init__(self, center_x, center_y, change_x, change_y, weapon_name, angle, scale):
+    def __init__(self, center_x, center_y, change_x, change_y, weapon_name, angle, scale, damage):
         self.is_server_bullet = True
         self.window = arcade.get_window()
+        self.damage=damage
         texture = f'assets/images/weapons/{weapon_name}/{weapon_name}_bullet.png'
         super().__init__(filename=texture,
                          center_x=center_x,
@@ -33,13 +34,14 @@ class ServerBullet(arcade.Sprite):
 
 
 class Bullet(arcade.Sprite):
-    def __init__(self, weapon, speed, explosion_diameter, scale=0.05):
+    def __init__(self, weapon, speed, explosion_diameter, scale=0.05, damage=10):
         self.window = arcade.get_window()
         self.weapon = weapon
         self.weapon_name = weapon.name
         self.speed = speed
         self.explosion_diameter = explosion_diameter
         self.is_server_bullet = False
+        self.damage=damage
 
         texture = f'assets/images/weapons/{self.weapon.name}/{self.weapon.name}_bullet.png'
         super().__init__(filename=texture,
@@ -72,8 +74,12 @@ class Bullet(arcade.Sprite):
 
 class AK47Bullet(Bullet):
     def __init__(self, weapon):
-        super().__init__(weapon, 200, 25)
+        super().__init__(weapon, 200, 25, damage=20)
 
 class P90Bullet(Bullet):
     def __init__(self, weapon):
-        super().__init__(weapon, 150, 5)
+        super().__init__(weapon, 150, 5, damage=15)
+
+class RPGBullet(Bullet):
+    def __init__(self, weapon):
+        super().__init__(weapon, 75, 200, damage=100)

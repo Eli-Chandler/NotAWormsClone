@@ -151,8 +151,9 @@ class Client(game.MyGame):
         change_x = message.body['change_x']
         change_y = message.body['change_y']
         weapon_name = message.body['weapon_name']
+        damage = message.body['damage']
 
-        b = bullet.ServerBullet(center_x, center_y, change_x, change_y, weapon_name, angle, scale)
+        b = bullet.ServerBullet(center_x, center_y, change_x, change_y, weapon_name, angle, scale, damage)
         self.bullet_list.append(b)
 
 
@@ -180,6 +181,8 @@ class Client(game.MyGame):
                     self.other_players[nickname].current_weapon = weapon.AK47(self.other_players[nickname])
                 elif position['weapon_name'] == 'p90':
                     self.other_players[nickname].current_weapon = weapon.P90(self.other_players[nickname])
+                elif position['weapon_name'] == 'rpg':
+                    self.other_players[nickname].current_weapon = weapon.RPG(self.other_players[nickname])
 
             self.other_players[nickname].current_weapon.angle = position['weapon_angle']
             self.other_players[nickname].current_weapon.scale = position['weapon_scale']
