@@ -165,7 +165,7 @@ class Server(game.MyGame):
         except BlockingIOError:
             return None
         except ConnectionResetError:
-            return None
+            return {'action': 'client_disconnected'}
 
         length = struct.unpack('!I', length_bytes)[0]
         message_bytes = b''
